@@ -22,7 +22,7 @@ module "catalogue" {
   instance_type          = "t2.micro"
   vpc_security_group_ids = [data.aws_ssm_parameter.catalogue_sg_id.value]
   subnet_id              = element(split(",", data.aws_ssm_parameter.private_subnet_ids.value), 0)
-  iam_instance_profile = "ShellScriptRoleForRoboshop"
+  iam_instance_profile = "EC2roleforShellScript"
   tags = merge(
     var.common_tags,
     var.tags

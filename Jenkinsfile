@@ -11,6 +11,7 @@ pipeline {
     options {
         timeout(time: 1, unit: 'HOURS')
         disableConcurrentBuilds()
+        ansiColor()
     }
     parameters {
         string(name: 'version', defaultValue: '1.2.0', description: 'What is the artifact version?')
@@ -27,6 +28,35 @@ pipeline {
                     echo "version: ${params.version}"
                     echo "environment: ${params.environment}"
 
+                """
+            }
+        }
+
+        stage('Init') {
+            steps {
+                sh """
+                    cd terraform
+                    terraform init  --backend-config=${params.environment}/backend.tf -reconfigure"
+
+                """
+            }
+        }
+
+        stage('Plan') {
+            steps {
+                sh """
+                    cd terraform
+                    terraform plan -var-file=${params.environment}/${params.environment}.tfvars -var="app_version=${params.version}"
+
+                """
+            }
+        }
+
+        stage('Apply') {
+            steps {
+                sh """
+                    cd terraform
+                    terraform apply -var-file=${params.environment}/${params.environment}.tfvars -var="app_version=${params.version} -auto-approve"
                 """
             }
         }
